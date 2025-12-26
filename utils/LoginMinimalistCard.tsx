@@ -2,7 +2,7 @@ import { faCircleUser, faFingerprint, faKey, faShieldHalved } from '@fortawesome
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { motion } from 'framer-motion';
 import React, { useState } from 'react';
-import { UseFormReturn } from 'react-hook-form';
+import { UseFormReturn, useWatch } from 'react-hook-form';
 import { Form } from '~/form/Form';
 import { Button, FormState, TextField } from '~/form/fields';
 import { useMediaQuery } from '~/hooks/useMediaQuery';
@@ -63,6 +63,18 @@ export const LoginMinimalistCard = ({
 }: LoginMinimalistCardProps) => {
   const [focusedField, setFocusedField] = useState<string | null>(null);
   const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // Observar valores de los campos para determinar si el label debe estar flotante
+  const usernameValue = methods ? useWatch({ control: methods.control, name: 'username' }) : '';
+  const passwordValue = methods ? useWatch({ control: methods.control, name: 'password' }) : '';
+
+  // Determinar si un campo tiene valor o está enfocado para flotar el label
+  const isFieldActive = (fieldName: string) => {
+    if (focusedField === fieldName) return true;
+    if (fieldName === 'username' && usernameValue) return true;
+    if (fieldName === 'password' && passwordValue) return true;
+    return false;
+  };
 
   // Estilos para el patrón de fondo
   const getBackgroundPattern = () => {
@@ -158,14 +170,16 @@ export const LoginMinimalistCard = ({
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
               className="relative"
+              onFocus={() => setFocusedField('username')}
+              onBlur={() => setFocusedField(null)}
             >
               <label
-                className={`absolute left-4 transition-all duration-200 pointer-events-none ${
-                  focusedField === 'username'
+                className={`absolute left-4 transition-all duration-200 pointer-events-none z-10 ${
+                  isFieldActive('username')
                     ? 'top-0 text-xs px-1 bg-[var(--bg)] -translate-y-1/2'
                     : 'top-1/2 -translate-y-1/2 text-sm'
                 }`}
-                style={{ color: focusedField === 'username' ? accentColor : 'var(--placeholder)' }}
+                style={{ color: isFieldActive('username') ? accentColor : 'var(--placeholder)' }}
               >
                 Usuario o Email
               </label>
@@ -174,7 +188,6 @@ export const LoginMinimalistCard = ({
                 isRequired
                 placeholder=""
                 inputClassName="p-4 border-2 rounded-xl focus:outline-none transition-all bg-[var(--bg)]"
-                onChange={() => setFocusedField('username')}
               />
               <div
                 className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 transition-all duration-300 rounded-full ${
@@ -190,14 +203,16 @@ export const LoginMinimalistCard = ({
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
               className="relative"
+              onFocus={() => setFocusedField('password')}
+              onBlur={() => setFocusedField(null)}
             >
               <label
                 className={`absolute left-4 transition-all duration-200 pointer-events-none z-10 ${
-                  focusedField === 'password'
+                  isFieldActive('password')
                     ? 'top-0 text-xs px-1 bg-[var(--bg)] -translate-y-1/2'
                     : 'top-1/2 -translate-y-1/2 text-sm'
                 }`}
-                style={{ color: focusedField === 'password' ? accentColor : 'var(--placeholder)' }}
+                style={{ color: isFieldActive('password') ? accentColor : 'var(--placeholder)' }}
               >
                 Contraseña
               </label>
@@ -207,7 +222,6 @@ export const LoginMinimalistCard = ({
                 type="password"
                 placeholder=""
                 inputClassName="p-4 border-2 rounded-xl focus:outline-none transition-all bg-[var(--bg)]"
-                onChange={() => setFocusedField('password')}
               />
               <div
                 className={`absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 transition-all duration-300 rounded-full ${
